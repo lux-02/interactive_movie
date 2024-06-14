@@ -1,5 +1,5 @@
 {
-  "name": "racontr",
+  "name": "interactive_movie",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,10 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "14.2.3",
     "openai": "^4.48.2",
-    "react": "^18",
-    "react-dom": "^18"
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
   },
   "devDependencies": {
     "eslint": "^8",
