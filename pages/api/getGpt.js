@@ -18,13 +18,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { text, history } = req.query;
+  const { text } = req.query;
 
   if (!text) {
     return res.status(400).json({ error: "Input query parameter is required" });
   }
-
-  const parsedHistory = history ? JSON.parse(history) : [];
 
   const prompt = `
   ${text} 키워드에 대한 한국어 인터렉티브 스토리를 하나만 생성해줘. 아래 예시처럼 양식을 지켜서 제목, 내용, 선택지를 만들어줘.
@@ -46,7 +44,7 @@ export default async function handler(req, res) {
   try {
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
-      messages: [...parsedHistory, { role: "system", content: prompt }],
+      messages: [{ role: "system", content: prompt }],
       max_tokens: 2000,
     });
 
