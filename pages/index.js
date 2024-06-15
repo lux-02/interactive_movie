@@ -1,5 +1,7 @@
 import styles from "@/styles/Home.module.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 export default function Home() {
   const [inputText, setInputText] = useState("");
@@ -11,50 +13,68 @@ export default function Home() {
   const [chapter, setChapter] = useState(0);
   const [showOptions, setShowOptions] = useState(false);
   const [isInitial, setIsInitial] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsInitial(false);
+    setIsLoading(true);
+    setShowOptions(false);
     const newHistory = [...history, { role: "user", content: inputText }];
-    const res = await fetch(`/api/gpt`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: inputText, history: newHistory }),
-    });
-    const img = await fetch(`/api/dalle?text=${inputText}`);
-    const data = await res.json();
-    const imgData = await img.json();
-    const formattedContent = formatStoryText(data.res);
-    setResponseTitle(formattedContent.title);
-    setResponseContent(formattedContent.story);
-    setImgUrl(imgData.res);
-    setOptions(formattedContent.options);
-    setHistory([...newHistory, { role: "assistant", content: data.res }]);
-    setChapter((prev) => prev + 1);
+
+    try {
+      const res = await fetch(`/api/gpt`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: inputText, history: newHistory }),
+      });
+      const img = await fetch(`/api/dalle?text=${inputText}`);
+      const data = await res.json();
+      const imgData = await img.json();
+      const formattedContent = formatStoryText(data.res);
+      setResponseTitle(formattedContent.title);
+      setResponseContent(formattedContent.story);
+      setImgUrl(imgData.res);
+      setOptions(formattedContent.options);
+      setHistory([...newHistory, { role: "assistant", content: data.res }]);
+      setChapter((prev) => prev + 1);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleOptionClick = async (option) => {
     setShowOptions(false);
+    setIsLoading(true);
     const newHistory = [...history, { role: "user", content: option }];
-    const res = await fetch(`/api/gpt`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text: option, history: newHistory }),
-    });
-    const img = await fetch(`/api/dalle?text=${option}`);
-    const data = await res.json();
-    const imgData = await img.json();
-    const formattedContent = formatStoryText(data.res);
-    setResponseTitle(formattedContent.title);
-    setResponseContent(formattedContent.story);
-    setImgUrl(imgData.res);
-    setOptions(formattedContent.options);
-    setHistory([...newHistory, { role: "assistant", content: data.res }]);
-    setChapter((prev) => prev + 1);
+
+    try {
+      const res = await fetch(`/api/gpt`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: option, history: newHistory }),
+      });
+      const img = await fetch(`/api/dalle?text=${option}`);
+      const data = await res.json();
+      const imgData = await img.json();
+      const formattedContent = formatStoryText(data.res);
+      setResponseTitle(formattedContent.title);
+      setResponseContent(formattedContent.story);
+      setImgUrl(imgData.res);
+      setOptions(formattedContent.options);
+      setHistory([...newHistory, { role: "assistant", content: data.res }]);
+      setChapter((prev) => prev + 1);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const formatStoryText = (text) => {
@@ -99,10 +119,15 @@ export default function Home() {
           </form>
         </>
       )}
-      {responseContent && (
+      {isLoading && (
+        <div className={styles.loading}>
+          <FontAwesomeIcon icon={faSpinner} spin size="3x" />
+        </div>
+      )}
+      {!isLoading && responseContent && (
         <div className={styles.responseContainer}>
-          <h3 className={` flexCenter ${styles.titleText}`}>
-            #{chapter} {responseTitle}
+          <h3 className={`flexCenter ${styles.titleText}`}>
+            S#{chapter} {responseTitle}
           </h3>
           <img src={imgUrl} alt="DALL-E IMG" className={styles.responseImage} />
           <p className={`flexCenter ${styles.storyText}`}>{responseContent}</p>

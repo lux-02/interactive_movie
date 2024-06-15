@@ -146,3 +146,18 @@
 .optionButton:hover {
   background-color: rgb(0, 0, 121);
 }
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: block;
+}
